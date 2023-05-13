@@ -10,6 +10,8 @@ A PHP library for interacting with OpenAI's Completions and ChatCompletions API.
   - [Chat](#chat)
   - [Completion](#completion)
   - [Conversations](#conversations)
+- [Todo](#todo)
+- [Issues](#issues)
 - [Contributing](#contributing)
 - [License](#license)
 
@@ -30,7 +32,7 @@ Initialize the `LuGPT` class with your OpenAI API key:
 ```php
 require_once 'vendor/autoload.php';
 
-use Sonichaos360\LuGPT\LuGPT;
+use Sonichaos360\LuGPT\Completions;
 
 $apiKey = 'your_openai_api_key';
 $model = 'gpt-3.5-turbo';
@@ -38,7 +40,7 @@ $maxTokens = '1500';
 $temp = '1';
 $conversationsPath = '../conversations'; //Optional, necessary only if you will manage conversation history using createConversation()
 
-$luGPT = new LuGPT($apiKey, $model, $maxTokens, $temp, $conversationsPath);
+$luGPT = new Completions($apiKey, $model, $maxTokens, $temp, $conversationsPath);
 
 ```
 

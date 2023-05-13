@@ -6,7 +6,7 @@
  * @package   Sonichaos360/LuGPT
  * @author    Luciano Joan Vergara
  * @license   MIT License (https://opensource.org/licenses/MIT)
- * @link      https://github.com/Sonichaos360/OpenAi
+ * @link      https://github.com/Sonichaos360/LuGPT
  *
  * MIT License
  *
@@ -28,7 +28,7 @@
 
 namespace Sonichaos360\LuGPT;
 
-class LuGPT
+class Completions
 {
     protected $apiKey;
     protected $model;
@@ -38,7 +38,7 @@ class LuGPT
     protected $logPath;
 
     /**
-     * Constructor for LuGPT class
+     * Constructor for LuGpt class
      *
      * @param string $apiKey API key for OpenAI
      * @param string $model The model to use for OpenAI
