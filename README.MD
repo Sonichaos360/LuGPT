@@ -10,6 +10,7 @@ A PHP library for interacting with OpenAI's Completions and ChatCompletions API.
   - [Chat](#chat)
   - [Completion](#completion)
   - [Conversations](#conversations)
+  - [TTS Usage Example](#tts-usage-example)
 - [Todo](#todo)
 - [Issues](#issues)
 - [Contributing](#contributing)
@@ -92,6 +93,54 @@ $prompt = 'Translate the following English sentence to French: "Hello, how are y
 $response = $luGPT->Completion($prompt);
 
 echo $response["choices"][0]["text"];
+```
+
+### TTS Usage Example
+
+```php
+<?php
+require_once 'vendor/autoload.php';
+
+use Sonichaos360\LuGPT\Tts;
+
+// Required API key
+$apiKey = 'your_openai_api_key';
+
+// TTS parameters
+$model          = 'tts-1';           
+$voice          = 'alloy';           
+$responseFormat = 'mp3';             
+$speed          = 1.0;               
+
+// Optional logging and storage paths
+$logPath     = 'path/to/your/logfile.log';      
+$storagePath = 'path/to/your/audio_storage';    
+
+// Create TTS instance
+$luTts = new Tts($apiKey, $model, $voice, $responseFormat, $speed, $logPath, $storagePath);
+
+// Text to be synthesized
+$text = 'Today is a wonderful day to build something people love!';
+
+// Option 1: Get the raw binary audio data
+$audioData = $luTts->synthesize($text);
+file_put_contents('speech.mp3', $audioData);
+echo "Audio saved to speech.mp3\n";
+
+// Option 2: Directly save to a specified file
+if ($luTts->synthesizeToFile($text, 'speech_direct.mp3')) {
+    echo "Audio saved to speech_direct.mp3\n";
+} else {
+    echo "Failed to save audio.\n";
+}
+
+// Option 3: Automatically store the file in the assigned storage path
+try {
+    $savedFilePath = $luTts->synthesizeAndStore($text, 'custom_speech.mp3');
+    echo "Audio stored at: " . $savedFilePath . "\n";
+} catch (\Exception $e) {
+    echo "Error: " . $e->getMessage() . "\n";
+}
 ```
 
 ## TODO
