@@ -10,6 +10,7 @@ A PHP library for interacting with OpenAI's Completions and ChatCompletions API.
   - [Chat](#chat)
   - [Completion](#completion)
   - [Conversations](#conversations)
+  - [Web Search](#web-search)
 - [Todo](#todo)
 - [Issues](#issues)
 - [Contributing](#contributing)
@@ -93,6 +94,58 @@ $response = $luGPT->Completion($prompt);
 
 echo $response["choices"][0]["text"];
 ```
+
+### Web Search
+
+Use OpenAI's web search tool to retrieve the latest information from the internet:
+
+```php
+use Sonichaos360\LuGPT\Responses;
+
+$apiKey = 'your_openai_api_key';
+$model = 'gpt-4o'; // Recommended model for web search
+$luResponses = new Responses($apiKey, $model);
+
+// Basic web search
+$input = "What was a positive news story from today?";
+$response = $luResponses->createWithWebSearch($input);
+echo $luResponses->getOutputText($response);
+
+// Web search with user location
+$input = "What are the best restaurants around me?";
+$options = [
+    'userLocation' => [
+        'country' => 'US',
+        'city' => 'New York',
+        'region' => 'New York',
+        'timezone' => 'America/New_York'
+    ],
+    'searchContextSize' => 'medium', // Options: low, medium, high
+    'forceWebSearch' => true // Force the model to use web search
+];
+
+$response = $luResponses->createWithWebSearch($input, $options);
+echo $luResponses->getOutputText($response);
+
+// Get citations
+$citations = $luResponses->getCitations($response);
+foreach ($citations as $citation) {
+    if ($citation['type'] === 'url_citation') {
+        echo "Source: " . $citation['title'] . " - " . $citation['url'] . "\n";
+    }
+}
+```
+
+The web search functionality allows the model to search the internet for the latest information before generating a response. You can customize:
+
+- **User Location**: Provide geographic context to get more relevant search results.
+- **Search Context Size**: Control how much context is retrieved from the web:
+  - `high`: Most comprehensive, highest cost, slower response
+  - `medium`: Balanced context, cost, and latency (default)
+  - `low`: Least context, lowest cost, fastest response
+- **Force Web Search**: Ensure the model uses web search by setting `forceWebSearch` to `true`
+
+Web search responses include citations to source URLs that can be extracted using the `getCitations()` method.
 
 ## TODO
 
