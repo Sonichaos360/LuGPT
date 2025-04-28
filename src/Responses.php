@@ -151,13 +151,16 @@ class Responses
      */
     public function getOutputText($response)
     {
-        foreach ($response as $item) {
-            if ($item['type'] === 'message' && isset($item['content'][0]['text'])) {
-                return $item['content'][0]['text'];
+        if(isset($response['output']) && count($response['output']) > 0)
+        {
+            foreach ($response['output'] as $item) {
+                if ($item['type'] === 'message' && isset($item['content'][0]['text'])) {
+                    return $item['content'][0]['text'];
+                }
             }
         }
         
-        return '';
+        return [];
     }
 
     /**
@@ -168,9 +171,12 @@ class Responses
      */
     public function getCitations($response)
     {
-        foreach ($response as $item) {
-            if ($item['type'] === 'message' && isset($item['content'][0]['annotations'])) {
-                return $item['content'][0]['annotations'];
+        if(isset($response['output']) && count($response['output']) > 0)
+        {
+            foreach ($response['output'] as $item) {
+                if ($item['type'] === 'message' && isset($item['content'][0]['annotations'])) {
+                    return $item['content'][0]['annotations'];
+                }
             }
         }
         
