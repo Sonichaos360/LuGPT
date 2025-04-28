@@ -16,6 +16,7 @@ class Responses
     protected $apiKey;
     protected $model;
     protected $logPath;
+    protected $bypassSSL;
 
     /**
      * Constructor for Responses class
@@ -23,8 +24,9 @@ class Responses
      * @param string $apiKey API key for OpenAI
      * @param string $model The model to use for OpenAI (gpt-4o is recommended for web search)
      * @param string|null $logPath The path to store logs, null by default
+     * @param bool $bypassSSL Whether to bypass SSL certificate verification (default: false)
      */
-    public function __construct($apiKey, $model = 'gpt-4o', $logPath = null)
+    public function __construct($apiKey, $model = 'gpt-4o', $logPath = null, $bypassSSL = false)
     {
         if (!extension_loaded('curl')) {
             throw new \RuntimeException('cURL library is not available in this PHP installation.');
@@ -37,6 +39,7 @@ class Responses
         $this->model = $model;
         $this->apiKey = $apiKey;
         $this->logPath = $logPath;
+        $this->bypassSSL = $bypassSSL;
     }
 
     /**
@@ -56,6 +59,12 @@ class Responses
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Optionally bypass SSL certificate verification
+        if ($this->bypassSSL) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        }
 
         $result = curl_exec($ch);
 

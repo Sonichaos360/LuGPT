@@ -36,6 +36,7 @@ class Completions
     protected $temperature;
     protected $conversationPath;
     protected $logPath;
+    protected $bypassSSL;
 
     /**
      * Constructor for LuGpt class
@@ -46,8 +47,9 @@ class Completions
      * @param float $temperature The temperature to use for OpenAI
      * @param string|null $conversationPath The path to store conversation history, null by default
      * @param string|null $logPath The path to store logs, null by default
+     * @param bool $bypassSSL Whether to bypass SSL certificate verification (default: false)
      */
-    public function __construct($apiKey, $model = 'gpt-3.5-turbo', $tokens = 1500, $temperature = 1, $conversationPath = null, $logPath = null)
+    public function __construct($apiKey, $model = 'gpt-3.5-turbo', $tokens = 1500, $temperature = 1, $conversationPath = null, $logPath = null, $bypassSSL = false)
     {
         if (!extension_loaded('curl')) {
             throw new \RuntimeException('cURL library is not available in this PHP installation.');
@@ -63,6 +65,7 @@ class Completions
         $this->temperature = $temperature;
         $this->conversationPath = $conversationPath;
         $this->logPath = $logPath;
+        $this->bypassSSL = $bypassSSL;
     }
 
     /**
@@ -82,6 +85,12 @@ class Completions
         curl_setopt($ch, CURLOPT_POST, 1);
         curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($postFields));
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+
+        // Optionally bypass SSL certificate verification
+        if ($this->bypassSSL) {
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, false);
+        }
 
         $result = curl_exec($ch);
 
