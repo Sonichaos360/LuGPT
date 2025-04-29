@@ -187,13 +187,13 @@ class Responses
      * Create a response with structured output using JSON Schema
      *
      * @param array $input The input messages (array of ['role' => ..., 'content' => ...])
-     * @param array $schema The JSON Schema to enforce
+     * @param array $schema The JSON Schema to enforce (should be the object under 'schema' or 'parameters')
      * @param array $options Additional options: name, description, strict, max_output_tokens, etc.
      * @return array The API response
      */
     public function createWithStructuredOutput(array $input, array $schema, array $options = [])
     {
-        // Ensure schema is a valid JSON Schema with type "object"
+        // Accept both 'schema' and 'parameters' as the schema key, but always send as 'schema'
         if (!is_array($schema) || !isset($schema['type']) || $schema['type'] !== 'object') {
             throw new \InvalidArgumentException('The schema for structured output must be a JSON Schema of type "object".');
         }
@@ -226,8 +226,6 @@ class Responses
         if (!empty($options['max_output_tokens'])) {
             $postFields['max_output_tokens'] = (int)$options['max_output_tokens'];
         }
-
-        // Optionally add other OpenAI parameters here as needed
 
         $response = json_decode($this->sendCurlRequest($url, $headers, $postFields), true);
 

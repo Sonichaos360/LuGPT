@@ -151,7 +151,7 @@ Web search responses include citations to source URLs that can be extracted usin
 
 You can ensure the model's response adheres to a specific JSON Schema using the `createWithStructuredOutput` method in the `Responses` class.
 
-**Example: Extracting a person's name and age from a sentence**
+**Example: Extracting weather info as structured JSON**
 
 ```php
 use Sonichaos360\LuGPT\Responses;
@@ -159,26 +159,34 @@ use Sonichaos360\LuGPT\Responses;
 $apiKey = 'your_openai_api_key';
 $responses = new Responses($apiKey, 'gpt-4o-2024-08-06');
 
-// Define your schema
+// Define your schema (must be type "object" and include all required fields)
 $schema = [
     "type" => "object",
     "properties" => [
-        "name" => ["type" => "string"],
-        "age" => ["type" => "integer"]
+        "location" => [
+            "type" => "string",
+            "description" => "The location to get the weather for"
+        ],
+        "unit" => [
+            "type" => "string",
+            "description" => "The unit to return the temperature in",
+            "enum" => ["F", "C"]
+        ]
     ],
-    "required" => ["name", "age"],
+    "required" => ["location", "unit"],
     "additionalProperties" => false
 ];
 
 // Prepare input messages
 $input = [
-    ["role" => "system", "content" => "Extract the person's name and age from the user's message."],
-    ["role" => "user", "content" => "My name is Alice and I am 30 years old."]
+    ["role" => "system", "content" => "Extract the location and unit from the user's message."],
+    ["role" => "user", "content" => "I want the weather for Paris in C."]
 ];
 
 // Call the API
 $response = $responses->createWithStructuredOutput($input, $schema, [
-    'name' => 'person_info'
+    'name' => 'get_weather',
+    'description' => 'Fetches the weather in the given location'
 ]);
 
 // Extract the structured output
@@ -192,8 +200,8 @@ This will return an array matching your schema, for example:
 ```php
 Array
 (
-    [name] => Alice
-    [age] => 30
+    [location] => Paris
+    [unit] => C
 )
 ```
 
