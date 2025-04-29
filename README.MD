@@ -147,6 +147,56 @@ The web search functionality allows the model to search the internet for the lat
 
 Web search responses include citations to source URLs that can be extracted using the `getCitations()` method.
 
+### Structured Outputs (JSON Schema)
+
+You can ensure the model's response adheres to a specific JSON Schema using the `createWithStructuredOutput` method in the `Responses` class.
+
+**Example: Extracting a person's name and age from a sentence**
+
+```php
+use Sonichaos360\LuGPT\Responses;
+
+$apiKey = 'your_openai_api_key';
+$responses = new Responses($apiKey, 'gpt-4o-2024-08-06');
+
+// Define your schema
+$schema = [
+    "type" => "object",
+    "properties" => [
+        "name" => ["type" => "string"],
+        "age" => ["type" => "integer"]
+    ],
+    "required" => ["name", "age"],
+    "additionalProperties" => false
+];
+
+// Prepare input messages
+$input = [
+    ["role" => "system", "content" => "Extract the person's name and age from the user's message."],
+    ["role" => "user", "content" => "My name is Alice and I am 30 years old."]
+];
+
+// Call the API
+$response = $responses->createWithStructuredOutput($input, $schema, [
+    'name' => 'person_info'
+]);
+
+// Extract the structured output
+$structured = $responses->getStructuredOutput($response);
+
+print_r($structured);
+```
+
+This will return an array matching your schema, for example:
+
+```php
+Array
+(
+    [name] => Alice
+    [age] => 30
+)
+```
+
 ## TODO
 
 Here are some upcoming features and improvements we have planned for the LuGPT library. We encourage contributors to take on these tasks or suggest new ones by creating issues on GitHub:

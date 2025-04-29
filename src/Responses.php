@@ -182,4 +182,81 @@ class Responses
         
         return [];
     }
+
+    /**
+     * Create a response with structured output using JSON Schema
+     *
+     * @param array $input The input messages (array of ['role' => ..., 'content' => ...])
+     * @param array $schema The JSON Schema to enforce
+     * @param array $options Additional options: name, description, strict, max_output_tokens, etc.
+     * @return array The API response
+     */
+    public function createWithStructuredOutput(array $input, array $schema, array $options = [])
+    {
+        $url = 'https://api.openai.com/v1/responses';
+        $headers = [
+            'Content-Type: application/json',
+            'Authorization: Bearer ' . $this->apiKey,
+        ];
+
+        $format = [
+            'type' => 'json_schema',
+            'schema' => $schema,
+            'strict' => isset($options['strict']) ? (bool)$options['strict'] : true
+        ];
+        if (!empty($options['name'])) {
+            $format['name'] = $options['name'];
+        }
+        if (!empty($options['description'])) {
+            $format['description'] = $options['description'];
+        }
+
+        $postFields = [
+            'model' => $this->model,
+            'input' => $input,
+            'text' => [
+                'format' => $format
+            ]
+        ];
+
+        if (!empty($options['max_output_tokens'])) {
+            $postFields['max_output_tokens'] = (int)$options['max_output_tokens'];
+        }
+
+        // Optionally add other OpenAI parameters here as needed
+
+        $response = json_decode($this->sendCurlRequest($url, $headers, $postFields), true);
+
+        return $response;
+    }
+
+    /**
+     * Extract the structured output from a structured output response
+     *
+     * @param array $response The API response from createWithStructuredOutput
+     * @return mixed The parsed structured output, or null if not found/refused
+     */
+    public function getStructuredOutput($response)
+    {
+        if (isset($response['output']) && count($response['output']) > 0) {
+            foreach ($response['output'] as $item) {
+                if ($item['type'] === 'message' && isset($item['content'][0])) {
+                    $content = $item['content'][0];
+                    if (isset($content['type']) && $content['type'] === 'output_text' && isset($content['text'])) {
+                        // The model's output is a JSON string, decode it
+                        $json = json_decode($content['text'], true);
+                        if (json_last_error() === JSON_ERROR_NONE) {
+                            return $json;
+                        }
+                        // If not valid JSON, return as-is
+                        return $content['text'];
+                    } elseif (isset($content['type']) && $content['type'] === 'refusal') {
+                        // Model refused to answer
+                        return ['refusal' => $content['refusal']];
+                    }
+                }
+            }
+        }
+        return null;
+    }
 }
