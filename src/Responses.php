@@ -199,14 +199,13 @@ class Responses
             'Authorization: Bearer ' . $this->apiKey,
         ];
 
+        // 'name' is required for text.format in OpenAI's API
         $format = [
             'type' => 'json_schema',
             'schema' => $schema,
-            'strict' => isset($options['strict']) ? (bool)$options['strict'] : true
+            'strict' => isset($options['strict']) ? (bool)$options['strict'] : true,
+            'name' => !empty($options['name']) ? $options['name'] : 'structured_output'
         ];
-        if (!empty($options['name'])) {
-            $format['name'] = $options['name'];
-        }
         if (!empty($options['description'])) {
             $format['description'] = $options['description'];
         }
