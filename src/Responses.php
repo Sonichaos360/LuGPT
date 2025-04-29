@@ -193,6 +193,11 @@ class Responses
      */
     public function createWithStructuredOutput(array $input, array $schema, array $options = [])
     {
+        // Ensure schema is a valid JSON Schema with type "object"
+        if (!is_array($schema) || !isset($schema['type']) || $schema['type'] !== 'object') {
+            throw new \InvalidArgumentException('The schema for structured output must be a JSON Schema of type "object".');
+        }
+
         $url = 'https://api.openai.com/v1/responses';
         $headers = [
             'Content-Type: application/json',
